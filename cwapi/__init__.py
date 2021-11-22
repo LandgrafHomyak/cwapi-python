@@ -232,7 +232,7 @@ class ChatWarsApiClient:
             raise ConnectionError("client not connected")
 
         with self.__mutex, self.__consumer.condvar:
-            self.__channel.basic_publish(exchange=self.__output_queue_name, routing_key=self.__routing_key, body=req.dump())
+            self.__channel.basic_publish(exchange=self.__output_exchange_name, routing_key=self.__routing_key, body=req.dump())
             self.__consumer.wait()
             return self.__consumer.last
 
@@ -244,7 +244,7 @@ class ChatWarsApiClient:
         if not self.is_connected():
             raise ConnectionError("client not connected")
 
-        self.__channel.basic_publish(exchange=self.__output_queue_name, routing_key=self.__routing_key, body=req.dump())
+        self.__channel.basic_publish(exchange=self.__output_exchange_name, routing_key=self.__routing_key, body=req.dump())
 
     __enter__ = _sync_async_descriptor()
 
