@@ -188,7 +188,6 @@ class ChatWarsApiClient:
         self.__channel = self.__connection.channel()
         self.__output_exchange = self.__channel.exchange_declare(self.__output_exchange_name, passive=True)
         self.__input_queue = self.__channel.queue_declare(self.__input_queue_name, passive=True)
-        self.__channel.queue_bind(queue=self.__input_queue_name, exchange=self.__output_exchange_name, routing_key=self.__routing_key)
 
         self.__consumer = _consumer(self.__connection_link, self.__input_queue_name)
 
@@ -198,7 +197,6 @@ class ChatWarsApiClient:
         self.__channel = self.__connection.channel()
         self.__output_exchange = await self.__channel.get_exchange(self.__output_exchange_name)
         self.__input_queue = await self.__channel.get_queue(self.__input_queue_name)
-        await self.__input_queue.bind(exchange=self.__output_exchange, routing_key=self.__routing_key)
 
     disconnect = _sync_async_descriptor()
 
