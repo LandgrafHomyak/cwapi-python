@@ -6,6 +6,7 @@ setup(
     packages=["cwapi"],
     install_requires=[
         "pika",
+        "aio-pika",
     ],
     package_data={
         "cwapi": ["py.typed", "*.pyi"],
