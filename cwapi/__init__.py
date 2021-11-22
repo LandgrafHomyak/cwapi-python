@@ -72,7 +72,7 @@ class _sync_async_descriptor:
 
 
 class _consumer:
-    __slots__ = "__connection_link", "__input_queue_name", "__connection", "__channel", "last", "__thread", "condvar"
+    __slots__ = "__connection_link", "__input_queue_name", "__connection", "__channel", "last", "__thread", "condvar", "__stoped", "__stop_mutex"
 
     def __new__(cls, connection_link, input_queue_name):
         self = super().__new__(cls)
@@ -82,6 +82,8 @@ class _consumer:
         self.__channel = None
         self.last = None
         self.condvar = Condition()
+        self.__stoped = False
+        self.__stop_mutex = thrLock()
         self.__thread = Thread(target=self, daemon=True)
         self.__thread.start()
         return self
@@ -93,10 +95,12 @@ class _consumer:
             self.condvar.notify_all()
 
     def __call__(self):
-        self.__connection = BlockingConnection(URLParameters(self.__connection_link))
-        self.__channel = self.__connection.channel()
-        self.__channel.basic_consume(queue=self.__input_queue_name, on_message_callback=self.__callback)
-        self.__channel.start_consuming()
+        with self.__stop_mutex:
+            self.__connection = BlockingConnection(URLParameters(self.__connection_link))
+            self.__channel = self.__connection.channel()
+            self.__channel.basic_consume(queue=self.__input_queue_name, on_message_callback=self.__callback, exclusive=True)
+        if not self.__stoped:
+            self.__channel.start_consuming()
 
     def __del__(self):
         if self.__channel is not None:
@@ -108,7 +112,9 @@ class _consumer:
             self.__connection = None
 
     def stop(self):
-        self.__channel.stop_consuming()
+        self.__stoped = True
+        with self.__stop_mutex:
+            self.__channel.stop_consuming()
 
 
 class ChatWarsApiClient:
@@ -187,7 +193,6 @@ class ChatWarsApiClient:
         self.__connection = BlockingConnection(URLParameters(self.__connection_link))
         self.__channel = self.__connection.channel()
         self.__output_exchange = self.__channel.exchange_declare(self.__output_exchange_name, passive=True)
-        self.__input_queue = self.__channel.queue_declare(self.__input_queue_name, passive=True)
 
         self.__consumer = _consumer(self.__connection_link, self.__input_queue_name)
 
