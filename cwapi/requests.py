@@ -1,4 +1,4 @@
-from .._utils import parse_2_kwargs
+from cwapi._utils import parse_2_kwargs
 
 __all__ = ("request", "authorized_request", "CreateAuthCodeRequest", "GrantTokenRequest", "AuthAdditionalOperationRequest", "GrantAdditionalOperationRequest", "GetInfoRequest", "ViewCraftbookRequest", "RequestProfileRequest", "RequestBasicInfoRequest", "RequestGearInfoRequest", "RequestStockRequest", "GuildInfoRequest", "WantToBuyRequest")
 
