@@ -71,54 +71,8 @@ class _sync_async_descriptor:
             return self
 
 
-class _consumer:
-    __slots__ = "__connection_link", "__input_queue_name", "__connection", "__channel", "last", "__thread", "condvar", "__stoped", "__stop_mutex"
-
-    def __new__(cls, connection_link, input_queue_name):
-        self = super().__new__(cls)
-        self.__connection_link = connection_link
-        self.__input_queue_name = input_queue_name
-        self.__connection = None
-        self.__channel = None
-        self.last = None
-        self.condvar = Condition()
-        self.__stoped = False
-        self.__stop_mutex = thrLock()
-        self.__thread = Thread(target=self, daemon=True)
-        self.__thread.start()
-        return self
-
-    def __callback(self, channel, method_frame, header_frame, body):
-        with self.condvar:
-            self.last = body
-            channel.ack()
-            self.condvar.notify_all()
-
-    def __call__(self):
-        with self.__stop_mutex:
-            self.__connection = BlockingConnection(URLParameters(self.__connection_link))
-            self.__channel = self.__connection.channel()
-            self.__channel.basic_consume(queue=self.__input_queue_name, on_message_callback=self.__callback, exclusive=True)
-        if not self.__stoped:
-            self.__channel.start_consuming()
-
-    def __del__(self):
-        if self.__channel is not None:
-            self.stop()
-            self.__channel.close()
-            self.__channel = None
-        if self.__connection is not None:
-            self.__connection.close()
-            self.__connection = None
-
-    def stop(self):
-        self.__stoped = True
-        with self.__stop_mutex:
-            self.__channel.stop_consuming()
-
-
 class ChatWarsApiClient:
-    __slots__ = "__connection_link", "__instance_name", "__password", "__server", "__connection", "__channel", "__output_exchange_name", "__input_queue_name", "__routing_key", "__output_exchange", "__input_queue", "__mutex", "__aio_loop", "__last_response"
+    __slots__ = "__connection_link", "__instance_name", "__password", "__server", "__connection", "__channel", "__output_exchange_name", "__input_queue_name", "__routing_key", "__output_exchange", "__input_queue", "__mutex", "__aio_loop"
 
     @property
     def instance_name(self):
@@ -174,7 +128,6 @@ class ChatWarsApiClient:
         self.__channel = None
         self.__output_exchange = None
         self.__input_queue = None
-        self.__last_response = None
 
         if issubclass(cls, AsyncChatWarsApiClient):
             self.__mutex = aioLock()
@@ -192,7 +145,7 @@ class ChatWarsApiClient:
     def connect(self):
         self.__connection = BlockingConnection(URLParameters(self.__connection_link))
         self.__channel = self.__connection.channel()
-        self.__channel.basic_consume(queue=self.__input_queue_name, on_message_callback=self.__callback, exclusive=True)
+        self.__channel.queue_purge(self.__input_queue_name)
 
     @connect._async
     async def connect(self):
@@ -229,8 +182,8 @@ class ChatWarsApiClient:
 
         with self.__mutex:
             self.__channel.basic_publish(exchange=self.__output_exchange_name, routing_key=self.__routing_key, body=req.dump())
-            self.__channel.start_consuming()
-            return self.__last_response
+            for method, properties, body in self.__channel.consume(self.__input_queue_name, auto_ack=True):
+                return body
 
     @send._async
     async def send(self, req, /):
@@ -241,14 +194,6 @@ class ChatWarsApiClient:
             raise ConnectionError("client not connected")
 
         self.__channel.basic_publish(exchange=self.__output_exchange_name, routing_key=self.__routing_key, body=req.dump())
-
-    __callback = _sync_async_descriptor()
-
-    @__callback._sync
-    def __callback(self, channel, method_frame, header_frame, body):
-        self.__last_response = body
-        channel.basic_ack(delivery_tag=method_frame.delivery_tag)
-        channel.stop_consuming()
 
     __enter__ = _sync_async_descriptor()
 
