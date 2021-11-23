@@ -174,7 +174,6 @@ class ChatWarsApiClient:
         self.__channel = None
         self.__output_exchange = None
         self.__input_queue = None
-        self.__consumer = None
         self.__last_response = None
 
         if issubclass(cls, AsyncChatWarsApiClient):
@@ -208,8 +207,6 @@ class ChatWarsApiClient:
     def disconnect(self):
         if not self.is_connected():
             raise ConnectionError("client not connected")
-        self.__consumer.stop()
-        self.__consumer.__del__()
         self.__channel.close()
         self.__connection.close()
 
@@ -249,8 +246,8 @@ class ChatWarsApiClient:
 
     @__callback._sync
     def __callback(self, channel, method_frame, header_frame, body):
-        self.last = body
-        channel.ack()
+        self.__last_response = body
+        channel.basic_ack(delivery_tag=method_frame.delivery_tag)
         channel.stop_consuming()
 
     __enter__ = _sync_async_descriptor()
