@@ -8,6 +8,7 @@ from pika import URLParameters, BlockingConnection
 from aio_pika import connect_robust
 
 from .requests import request
+from .responses import parse_response
 
 
 class Server(Enum):
@@ -170,10 +171,10 @@ class ChatWarsApiClient:
         await self.__channel.close()
         await self.__connection.close()
 
-    send = _sync_async_descriptor()
+    ask = _sync_async_descriptor()
 
-    @send._sync
-    def send(self, req, /):
+    @ask._sync
+    def ask(self, req, /):
         if not isinstance(req, request):
             raise TypeError("unsupported type of request")
 
@@ -183,10 +184,10 @@ class ChatWarsApiClient:
         with self.__mutex:
             self.__channel.basic_publish(exchange=self.__output_exchange_name, routing_key=self.__routing_key, body=req.dump())
             for method, properties, body in self.__channel.consume(self.__input_queue_name, auto_ack=True):
-                return body
+                return (body)
 
-    @send._async
-    async def send(self, req, /):
+    @ask._async
+    async def ask(self, req, /):
         if not isinstance(req, request):
             raise TypeError("unsupported type of request")
 

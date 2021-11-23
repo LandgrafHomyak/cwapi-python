@@ -1,31 +1,9 @@
-from cwapi._utils import parse_2_kwargs
+from ._utils import _class_creator, encode_string
 
-__all__ = ("request", "authorized_request", "CreateAuthCodeRequest", "GrantTokenRequest", "AuthAdditionalOperationRequest", "GrantAdditionalOperationRequest", "GetInfoRequest", "ViewCraftbookRequest", "RequestProfileRequest", "RequestBasicInfoRequest", "RequestGearInfoRequest", "RequestStockRequest", "GuildInfoRequest", "WantToBuyRequest")
+__all__ = ("request", "CreateAuthCodeRequest", "GrantTokenRequest", "AuthAdditionalOperationRequest", "GrantAdditionalOperationRequest", "GetInfoRequest", "ViewCraftbookRequest", "RequestProfileRequest", "RequestBasicInfoRequest", "RequestGearInfoRequest", "RequestStockRequest", "GuildInfoRequest", "WantToBuyRequest")
 
 
 class request:
-    def dump(self):
-        raise NotImplementedError
-
-
-class authorized_request(request):
-    __slots__ = "__token"
-
-    def __new__(cls, token):
-        self = super().__new__(cls)
-        self.token = token
-        return self
-
-    @property
-    def token(self):
-        return self.__token
-
-    @token.setter
-    def token(self, value):
-        if type(value) is not str:
-            raise TypeError(f"token must be str, got {type(value).__qualname__}")
-        self.__token = value
-
     def dump(self):
         raise NotImplementedError
 
@@ -51,78 +29,109 @@ def create_class(name, has_token, dump, *fields):
     return exec(code, globals())
 
 
-create_class(
-    "CreateAuthCodeRequest",
-    False,
-    '''b"""{"action":"createAuthCode","payload":{"userId":%d}}""" % (self.__uid,)''',
-    (int, "userId", "uid")
-)
-
-create_class(
-    "GrantTokenRequest",
-    False,
-    '''b"""{"action":"grantToken","payload":{"userId":%d,"authCode":"%b"}}""" % (self.__uid, self.__code.encode("unicode-escape").replace(b'"', br'\\"'))''',
-    (int, "userId", "uid"),
-    (str, "authCode", "code"),
-)
-
-create_class(
-    "AuthAdditionalOperationRequest",
-    True,
-    '''b"""{"token":%b,"action":"authAdditionalOperation","payload":{"operation":"%b"}}""" % (self.token.encode("unicode-escape").replace(b'"', br'\\"'), self.__operation.encode("unicode-escape").replace(b'"', br'\\"'))''',
-    (str, "operation", "operation"),
-)
-
-create_class(
-    "GrantAdditionalOperationRequest",
-    True,
-    '''b"""{"token":%b,"action":"grantAdditionalOperation","payload":{"requestId":"%b","authCode":"%b"}}""" % (self.token.encode("unicode-escape").replace(b'"', br'\\"'), self.__request_id.encode("unicode-escape").replace(b'"', br'\\"'), self.__code.encode("unicode-escape").replace(b'"', br'\\"'))''',
-    (str, "requestId", "request_id"),
-    (str, "authCode", "code"),
-)
+class CreateAuthCodeRequest(
+    request, metaclass=_class_creator,
+    names=("userId",),
+    types=(int,)
+):
+    def dump(self):
+        return b"""{"action":"createAuthCode","payload":{"userId":%d}}""" % (self.userId,)
 
 
-class GetInfoRequest(request):
+class GrantTokenRequest(
+    request, metaclass=_class_creator,
+    names=("userId", "authCode"),
+    types=(int, str)
+):
+    def dump(self):
+        return b"""{"action":"grantToken","payload":{"userId":%d,"authCode":"%b"}}""" % (self.userId, encode_string(self.authCode))
+
+
+class AuthAdditionalOperationRequest(
+    request, metaclass=_class_creator,
+    names=("token", "operation"),
+    types=(str, str)
+):
+    def dump(self):
+        return b"""{"token":%b,"action":"authAdditionalOperation","payload":{"operation":"%b"}}""" % (encode_string(self.token), encode_string(self.operation))
+
+
+class GrantAdditionalOperationRequest(
+    request, metaclass=_class_creator,
+    names=("token", "requestId", "authCode"),
+    types=(str, str, str)
+):
+    def dump(self):
+        return b"""{"token":%b,"action":"grantAdditionalOperation","payload":{"requestId":"%b","authCode":"%b"}}""" % (encode_string(self.token), encode_string(self.requestId), encode_string(self.authCode))
+
+
+class GetInfoRequest(
+    request, metaclass=_class_creator,
+    names=(),
+    types=()
+):
     def dump(self):
         return b"""{"action":"getInfo"}"""
 
 
-class ViewCraftbookRequest(authorized_request):
+class ViewCraftbookRequest(
+    request, metaclass=_class_creator,
+    names=("token",),
+    types=(str,)
+):
     def dump(self):
-        return b"""{"token":"%b","action":"viewCraftbook"}""" % (self.token.encode("unicode-escape").replace(b'"', br'\\"'),)
+        return b"""{"token":"%b","action":"viewCraftbook"}""" % (encode_string(self.token),)
 
 
-class RequestProfileRequest(authorized_request):
+class RequestProfileRequest(
+    request, metaclass=_class_creator,
+    names=("token",),
+    types=(str,)
+):
     def dump(self):
-        return b"""{"token":"%b","action":"requestProfile"}""" % (self.token.encode("unicode-escape").replace(b'"', br'\\"'),)
+        return b"""{"token":"%b","action":"requestProfile"}""" % (encode_string(self.token),)
 
 
-class RequestBasicInfoRequest(authorized_request):
+class RequestBasicInfoRequest(
+    request, metaclass=_class_creator,
+    names=("token",),
+    types=(str,)
+):
     def dump(self):
-        return b"""{"token":"%b","action":"requestBasicInfo"}""" % (self.token.encode("unicode-escape").replace(b'"', br'\\"'),)
+        return b"""{"token":"%b","action":"requestBasicInfo"}""" % (encode_string(self.token),)
 
 
-class RequestGearInfoRequest(authorized_request):
+class RequestGearInfoRequest(
+    request, metaclass=_class_creator,
+    names=("token",),
+    types=(str,)
+):
     def dump(self):
-        return b"""{"token":"%b","action":"requestGearInfo"}""" % (self.token.encode("unicode-escape").replace(b'"', br'\\"'),)
+        return b"""{"token":"%b","action":"requestGearInfo"}""" % (encode_string(self.token),)
 
 
-class RequestStockRequest(authorized_request):
+class RequestStockRequest(
+    request, metaclass=_class_creator,
+    names=("token",),
+    types=(str,)
+):
     def dump(self):
-        return b"""{"token":"%b","action":"requestStock"}""" % (self.token.encode("unicode-escape").replace(b'"', br'\\"'),)
+        return b"""{"token":"%b","action":"requestStock"}""" % (encode_string(self.token),)
 
 
-class GuildInfoRequest(authorized_request):
+class GuildInfoRequest(
+    request, metaclass=_class_creator,
+    names=("token",),
+    types=(str,)
+):
     def dump(self):
-        return b"""{"token":"%b","action":"requestStock"}""" % (self.token.encode("unicode-escape").replace(b'"', br'\\"'),)
+        return b"""{"token":"%b","action":"requestStock"}""" % (encode_string(self.token),)
 
 
-create_class(
-    "WantToBuyRequest",
-    True,
-    '''b"""{"token":%b,"action":"wantToBuy","payload":{"itemCode":"%b","quantity":%d,"price":%d,"exactPrice":%b}}""" % (self.token.encode("unicode-escape").replace(b'"', br'\\"'), self.__code.encode("unicode-escape").replace(b'"', br'\\"'), self.__quantity, self.__price, b"true" if self.__exact_price else b"false")''',
-    (str, "itemCode", "code"),
-    (int, "quantity", "quantity"),
-    (int, "price", "price"),
-    (bool, "exactPrice", "exact_price"),
-)
+class WantToBuyRequest(
+    request, metaclass=_class_creator,
+    names=("token", "itemCode", "quantity", "price", "exactPrice"),
+    types=(str, str, int, int, bool)
+):
+    def dump(self):
+        return b"""{"token":%b,"action":"wantToBuy","payload":{"itemCode":"%b","quantity":%d,"price":%d,"exactPrice":%b}}""" % (encode_string(self.token), encode_string(self.itemCode), self.quantity, self.price, b"true" if self.exactPrice else b"false")

@@ -1,74 +1,69 @@
-def parse_args(args, kwargs, *types):
-    assert type(args) is tuple
-    assert type(kwargs) is dict
+class slot_wrapper:
+    __slots__ = "__slot", "__type", "__name"
 
-    ai = args(iter)
-    kwargs = kwargs.copy()
-    p = []
+    def __new__(cls, slot, type, name):
+        self = super().__new__(cls)
+        self.__slot = slot
+        self.__type = type
+        self.__name = name
+        return self
 
-    for tp in types:
-        assert type(tp) is tuple
-        assert len(tp) == 3
-        assert type(tp[0]) is str
-        assert type(tp[1]) is tuple
-        assert set(map(type, tp[1])) == {str}
+    def __get__(self, instance, owner):
+        return self.__slot.__get__(instance, owner)
 
-        for v in ai:
-            p.append(v)
-            break
-        else:
-            for k in tp[1]:
-                if k in kwargs:
-                    p.append(kwargs.pop(k))
-                    break
-            else:
-                if tp[1]:
-                    raise TypeError(f"argument '{tp[1][0]}' not passed")
-                else:
-                    raise TypeError(f"not enough arguments")
+    def __set__(self, instance, value):
+        if type(value) is not self.__type:
+            raise TypeError(f"property {self.__name!r} must be {self.__type.__qualname__ !r}, got {type(value).__qualname__ !r}")
+        return self.__slot.__set__(instance, value)
 
-    for _ in ai:
-        raise TypeError("unexpected positional argument")
-    for k in kwargs:
-        raise TypeError(f"unexpected keyword argument '{k}'")
-    return p
+    def __delete__(self, instance):
+        raise TypeError(f"property {self.__name!r} can't be deleted")
 
 
-def parse_2_kwargs(args, kwargs, an, pn, types):
-    if len(args) > len(an):
-        raise TypeError("too many args")
-    elif len(args) == len(an):
-        for _ in kwargs:
-            raise TypeError(f"unexpected argument '{_}'")
-        for a, tp, n in zip(args, types, an):
-            if type(a) is not tp:
-                raise TypeError(f"'{n}' must be '{tp.__qualname__}', got {type(a).__qualname__}")
-        return args
+class _class_creator(type):
+    def __new__(mcs, name, bases, dct, /, *, names, types):
+        assert type(names) is tuple
+        assert type(types) is tuple
+        assert len(names) == len(types)
+        assert all(map(lambda _: type(_) is str, names))
+        assert all(map(lambda _: isinstance(_, type), types))
 
-    cm = set(an[len(args):]) & set(pn[len(args):])
-    ae = bool((set(an[len(args):]) - cm) & set(kwargs))
-    pe = bool((set(pn[len(args):]) - cm) & set(kwargs))
+        assert type(dct.get("__slots__", ())) is tuple
+        dct["__slots__"] = names
 
-    if ae and pe:
-        raise TypeError("mixing different styles in args not allowed")
+        assert "__new__" not in dct
 
-    if ae:
-        n = an
-    elif pe:
-        n = pn
-    else:
-        raise TypeError("not enough args")
+        def new(_cls, *args, **kwargs):
+            if len(args) > len(names):
+                raise TypeError("too many args")
+            elif len(args) <= len(names):
+                args = list(args)
+                for k in names[len(args):]:
+                    try:
+                        args.append(kwargs.pop(k))
+                    except KeyError:
+                        raise TypeError(f"property {k!r} not initialized")
 
-    p = list(args)
-    for k in n[len(args):]:
-        if k in kwargs:
-            p.append(kwargs.pop(k))
+            for _ in kwargs:
+                raise TypeError(f"unexpected argument '{_}'")
 
-    for _ in kwargs:
-        raise TypeError(f"unexpected argument '{_}'")
+            self = super(_cls, _cls).__new__(_cls)
 
-    for a, tp, n in zip(p, types, n):
-        if type(a) is not tp:
-            raise TypeError(f"'{n}' must be '{tp.__qualname__}', got {type(a).__qualname__}")
+            for n, v in zip(names, args):
+                setattr(self, n, v)
 
-    return p
+            return self
+
+        dct["__new__"] = new
+
+        cls = type(name, bases, dct)
+
+        for n, t in zip(names, types):
+            wrapper = slot_wrapper(getattr(cls, n), t, n)
+            setattr(cls, n, wrapper)
+
+        return cls
+
+
+def encode_string(s):
+    return s.encode("unicode-escape").replace(b'"', br'\"')
