@@ -1,7 +1,7 @@
 from asyncio import Lock as aioLock
 from enum import Enum, auto
 from queue import Queue
-from threading import Lock as thrLock, Thread, Condition
+from threading import Lock as thrLock, Thread, Condition as thrCondition
 
 import aio_pika
 from pika import URLParameters, BlockingConnection
@@ -118,7 +118,7 @@ class _consumer:
 
 
 class ChatWarsApiClient:
-    __slots__ = "__connection_link", "__instance_name", "__password", "__server", "__connection", "__channel", "__output_exchange_name", "__input_queue_name", "__routing_key", "__output_exchange", "__input_queue", "__mutex", "__consumer", "__aio_loop"
+    __slots__ = "__connection_link", "__instance_name", "__password", "__server", "__connection", "__channel", "__output_exchange_name", "__input_queue_name", "__routing_key", "__output_exchange", "__input_queue", "__mutex", "__aio_loop", "__last_response"
 
     @property
     def instance_name(self):
@@ -175,6 +175,7 @@ class ChatWarsApiClient:
         self.__output_exchange = None
         self.__input_queue = None
         self.__consumer = None
+        self.__last_response = None
 
         if issubclass(cls, AsyncChatWarsApiClient):
             self.__mutex = aioLock()
@@ -192,9 +193,7 @@ class ChatWarsApiClient:
     def connect(self):
         self.__connection = BlockingConnection(URLParameters(self.__connection_link))
         self.__channel = self.__connection.channel()
-        self.__output_exchange = self.__channel.exchange_declare(self.__output_exchange_name, passive=True)
-
-        self.__consumer = _consumer(self.__connection_link, self.__input_queue_name)
+        self.__channel.basic_consume(queue=self.__input_queue_name, on_message_callback=self.__callback, exclusive=True)
 
     @connect._async
     async def connect(self):
@@ -231,10 +230,10 @@ class ChatWarsApiClient:
         if not self.is_connected():
             raise ConnectionError("client not connected")
 
-        with self.__mutex, self.__consumer.condvar:
+        with self.__mutex:
             self.__channel.basic_publish(exchange=self.__output_exchange_name, routing_key=self.__routing_key, body=req.dump())
-            self.__consumer.wait()
-            return self.__consumer.last
+            self.__channel.start_consuming()
+            return self.__last_response
 
     @send._async
     async def send(self, req, /):
@@ -245,6 +244,14 @@ class ChatWarsApiClient:
             raise ConnectionError("client not connected")
 
         self.__channel.basic_publish(exchange=self.__output_exchange_name, routing_key=self.__routing_key, body=req.dump())
+
+    __callback = _sync_async_descriptor()
+
+    @__callback._sync
+    def __callback(self, channel, method_frame, header_frame, body):
+        self.last = body
+        channel.ack()
+        channel.stop_consuming()
 
     __enter__ = _sync_async_descriptor()
 
