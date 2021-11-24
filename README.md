@@ -4,7 +4,7 @@ Currently, based on [`pika`](https://pypi.org/project/pika/) and [`aio-pika`](ht
 
 ## Version `1!2021.11.24b0`
 
-`{implementation version}!{date when it works}{sub releases}`
+`{implementation version}!{date when it was work}{sub releases}`
 
 ## Installing
 
@@ -71,7 +71,7 @@ async def main():
 
 ```
 
-Alternative connection variant (works with boh clients):
+Alternative connection variant (works with both clients):
 
 ```python3
 c = ...
