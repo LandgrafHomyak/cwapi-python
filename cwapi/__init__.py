@@ -108,7 +108,7 @@ class ChatWarsApiClient:
     def loop(self):
         return self.__aio_loop
 
-    def __new__(cls, server, instance_name, password, *, __loop=None):
+    def __new__(cls, server, instance_name, password, *, _loop=None):
         if type(server) is not Server:
             raise TypeError(f"server must instance of {Server.__qualname__ !r} enum")
         if type(instance_name) is not str:
@@ -120,7 +120,7 @@ class ChatWarsApiClient:
         self.__server = server
         self.__instance_name = instance_name
         self.__password = password
-        self.__aio_loop = __loop
+        self.__aio_loop = _loop
 
         self.__connection_link = server.build_address(instance_name, password)
         self.__output_exchange_name = f"{instance_name}_ex"
@@ -152,10 +152,12 @@ class ChatWarsApiClient:
 
     @connect._async
     async def connect(self):
-        self.__connection = await aio_pika.connect_robust(self.__connection_link)
-        self.__channel = self.__connection.channel()
+        self.__connection = await aio_pika.connect_robust(self.__connection_link, loop=self.__aio_loop)
+        self.__channel = await self.__connection.channel()
+        # await  self.__channel.open()
         self.__output_exchange = await self.__channel.get_exchange(self.__output_exchange_name)
         self.__input_queue = await self.__channel.get_queue(self.__input_queue_name)
+        await self.__input_queue.purge()
 
     disconnect = _sync_async_descriptor()
 
@@ -196,7 +198,13 @@ class ChatWarsApiClient:
         if not self.is_connected():
             raise ConnectionError("client not connected")
 
-        self.__channel.basic_publish(exchange=self.__output_exchange_name, routing_key=self.__routing_key, body=req.dump())
+        await self.__output_exchange.publish(aio_pika.Message(req.dump()), routing_key=self.routing_key)
+
+        async with self.__mutex:
+            async with self.__input_queue.iterator() as queue_iter:
+                async for message in queue_iter:
+                    async with message.process():
+                        return parse_response(message.body)
 
     __enter__ = _sync_async_descriptor()
 
@@ -214,9 +222,13 @@ class ChatWarsApiClient:
 
 
 class AsyncChatWarsApiClient(ChatWarsApiClient):
+    def __new__(cls, *args, loop=None, **kwargs):
+        return super().__new__(cls, *args, _loop=loop, **kwargs)
+
     async def __aenter__(self):
         await self.connect()
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.disconnect()
+        return False
