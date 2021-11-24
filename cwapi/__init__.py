@@ -10,7 +10,7 @@ from aio_pika import connect_robust
 from .requests import request
 from .responses import parse_response
 
-__all__ = ("Server", "ChatWarsApiClient")
+__all__ = ("Server", "ChatWarsApiClient", "AsyncChatWarsApiClient")
 
 
 class Server(Enum):
