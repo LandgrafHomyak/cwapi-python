@@ -10,6 +10,8 @@ from aio_pika import connect_robust
 from .requests import request
 from .responses import parse_response
 
+__all__ = ("Server", "ChatWarsApiClient")
+
 
 class Server(Enum):
     __slots__ = "__port", "__host", "__protocol"
@@ -184,7 +186,7 @@ class ChatWarsApiClient:
         with self.__mutex:
             self.__channel.basic_publish(exchange=self.__output_exchange_name, routing_key=self.__routing_key, body=req.dump())
             for method, properties, body in self.__channel.consume(self.__input_queue_name, auto_ack=True):
-                return (body)
+                return parse_response(body)
 
     @ask._async
     async def ask(self, req, /):

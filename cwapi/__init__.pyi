@@ -1,8 +1,9 @@
 from asyncio import AbstractEventLoop
 from enum import Enum
-from typing import ClassVar, TypeVar, Generic, Literal, NoReturn
+from typing import ClassVar, TypeVar, Generic, Literal, NoReturn, overload
 
-from .requests import request
+from .requests import AuthAdditionalOperationRequest, CreateAuthCodeRequest, GetInfoRequest, GrantAdditionalOperationRequest, GrantTokenRequest, GuildInfoRequest, RequestBasicInfoRequest, RequestGearInfoRequest, RequestProfileRequest, RequestStockRequest, ViewCraftbookRequest, WantToBuyRequest, request
+from .responses import AuthAdditionalOperationResponse, CreateAuthCodeResponse, GetInfoResponse, GrantAdditionalOperationResponse, GrantTokenResponse, GuildInfoResponse, RequestBasicInfoResponse, RequestGearInfoResponse, RequestProfileResponse, RequestStockResponse, ViewCraftbookResponse, WantToBuyResponse, response
 
 __PROTOCOL = TypeVar("__PROTOCOL", bound=str)
 __HOST = TypeVar("__HOST", bound=str)
@@ -55,7 +56,44 @@ class ChatWarsApiClient(Generic[__SERVER, __INSTANCE_NAME]):
 
     def disconnect(self) -> NoReturn: ...
 
-    def send(self, req: request, /) -> NoReturn: ...
+    @overload
+    def ask(self, req: CreateAuthCodeRequest, /) -> CreateAuthCodeResponse: ...
+
+    @overload
+    def ask(self, req: GrantTokenRequest, /) -> GrantTokenResponse: ...
+
+    @overload
+    def ask(self, req: AuthAdditionalOperationRequest, /) -> AuthAdditionalOperationResponse: ...
+
+    @overload
+    def ask(self, req: GrantAdditionalOperationRequest, /) -> GrantAdditionalOperationResponse: ...
+
+    @overload
+    def ask(self, req: GetInfoRequest, /) -> GetInfoResponse: ...
+
+    @overload
+    def ask(self, req: ViewCraftbookRequest, /) -> ViewCraftbookResponse: ...
+
+    @overload
+    def ask(self, req: RequestProfileRequest, /) -> RequestProfileResponse: ...
+
+    @overload
+    def ask(self, req: RequestBasicInfoRequest, /) -> RequestBasicInfoResponse: ...
+
+    @overload
+    def ask(self, req: RequestGearInfoRequest, /) -> RequestGearInfoResponse: ...
+
+    @overload
+    def ask(self, req: RequestStockRequest, /) -> RequestStockResponse: ...
+
+    @overload
+    def ask(self, req: GuildInfoRequest, /) -> GuildInfoResponse: ...
+
+    @overload
+    def ask(self, req: WantToBuyRequest, /) -> WantToBuyResponse: ...
+
+    @overload
+    def ask(self, req: request, /) -> response: ...
 
     def __enter__(self) -> ChatWarsApiClient: ...
 

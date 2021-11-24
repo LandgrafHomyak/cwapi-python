@@ -1,15 +1,19 @@
-from ._utils import _class_creator, encode_string
+from ._utils import _dataclass_creator, encode_string
 
-__all__ = ("request", "CreateAuthCodeRequest", "GrantTokenRequest", "AuthAdditionalOperationRequest", "GrantAdditionalOperationRequest", "GetInfoRequest", "ViewCraftbookRequest", "RequestProfileRequest", "RequestBasicInfoRequest", "RequestGearInfoRequest", "RequestStockRequest", "GuildInfoRequest", "WantToBuyRequest")
+__all__ = ("CreateAuthCodeRequest", "GrantTokenRequest", "AuthAdditionalOperationRequest", "GrantAdditionalOperationRequest", "GetInfoRequest", "ViewCraftbookRequest", "RequestProfileRequest", "RequestBasicInfoRequest", "RequestGearInfoRequest", "RequestStockRequest", "GuildInfoRequest", "WantToBuyRequest")
+
+from .types import Operation
 
 
 class request:
+    __slots__ = ()
+
     def dump(self):
         raise NotImplementedError
 
 
 class CreateAuthCodeRequest(
-    request, metaclass=_class_creator,
+    request, metaclass=_dataclass_creator,
     names=("userId",),
     types=(int,)
 ):
@@ -18,7 +22,7 @@ class CreateAuthCodeRequest(
 
 
 class GrantTokenRequest(
-    request, metaclass=_class_creator,
+    request, metaclass=_dataclass_creator,
     names=("userId", "authCode"),
     types=(int, str)
 ):
@@ -27,25 +31,25 @@ class GrantTokenRequest(
 
 
 class AuthAdditionalOperationRequest(
-    request, metaclass=_class_creator,
+    request, metaclass=_dataclass_creator,
     names=("token", "operation"),
-    types=(str, str)
+    types=(str, Operation)
 ):
     def dump(self):
-        return b"""{"token":%b,"action":"authAdditionalOperation","payload":{"operation":"%b"}}""" % (encode_string(self.token), encode_string(self.operation))
+        return b"""{"token":"%b","action":"authAdditionalOperation","payload":{"operation":"%b"}}""" % (encode_string(self.token), encode_string(str(self.operation)))
 
 
 class GrantAdditionalOperationRequest(
-    request, metaclass=_class_creator,
+    request, metaclass=_dataclass_creator,
     names=("token", "requestId", "authCode"),
     types=(str, str, str)
 ):
     def dump(self):
-        return b"""{"token":%b,"action":"grantAdditionalOperation","payload":{"requestId":"%b","authCode":"%b"}}""" % (encode_string(self.token), encode_string(self.requestId), encode_string(self.authCode))
+        return b"""{"token":"%b","action":"grantAdditionalOperation","payload":{"requestId":"%b","authCode":"%b"}}""" % (encode_string(self.token), encode_string(self.requestId), encode_string(self.authCode))
 
 
 class GetInfoRequest(
-    request, metaclass=_class_creator,
+    request, metaclass=_dataclass_creator,
     names=(),
     types=()
 ):
@@ -54,7 +58,7 @@ class GetInfoRequest(
 
 
 class ViewCraftbookRequest(
-    request, metaclass=_class_creator,
+    request, metaclass=_dataclass_creator,
     names=("token",),
     types=(str,)
 ):
@@ -63,7 +67,7 @@ class ViewCraftbookRequest(
 
 
 class RequestProfileRequest(
-    request, metaclass=_class_creator,
+    request, metaclass=_dataclass_creator,
     names=("token",),
     types=(str,)
 ):
@@ -72,7 +76,7 @@ class RequestProfileRequest(
 
 
 class RequestBasicInfoRequest(
-    request, metaclass=_class_creator,
+    request, metaclass=_dataclass_creator,
     names=("token",),
     types=(str,)
 ):
@@ -81,7 +85,7 @@ class RequestBasicInfoRequest(
 
 
 class RequestGearInfoRequest(
-    request, metaclass=_class_creator,
+    request, metaclass=_dataclass_creator,
     names=("token",),
     types=(str,)
 ):
@@ -90,7 +94,7 @@ class RequestGearInfoRequest(
 
 
 class RequestStockRequest(
-    request, metaclass=_class_creator,
+    request, metaclass=_dataclass_creator,
     names=("token",),
     types=(str,)
 ):
@@ -99,18 +103,18 @@ class RequestStockRequest(
 
 
 class GuildInfoRequest(
-    request, metaclass=_class_creator,
+    request, metaclass=_dataclass_creator,
     names=("token",),
     types=(str,)
 ):
     def dump(self):
-        return b"""{"token":"%b","action":"requestStock"}""" % (encode_string(self.token),)
+        return b"""{"token":"%b","action":"guildInfo"}""" % (encode_string(self.token),)
 
 
 class WantToBuyRequest(
-    request, metaclass=_class_creator,
+    request, metaclass=_dataclass_creator,
     names=("token", "itemCode", "quantity", "price", "exactPrice"),
     types=(str, str, int, int, bool)
 ):
     def dump(self):
-        return b"""{"token":%b,"action":"wantToBuy","payload":{"itemCode":"%b","quantity":%d,"price":%d,"exactPrice":%b}}""" % (encode_string(self.token), encode_string(self.itemCode), self.quantity, self.price, b"true" if self.exactPrice else b"false")
+        return b"""{"token":"%b","action":"wantToBuy","payload":{"itemCode":"%b","quantity":%d,"price":%d,"exactPrice":%b}}""" % (encode_string(self.token), encode_string(self.itemCode), self.quantity, self.price, b"true" if self.exactPrice else b"false")

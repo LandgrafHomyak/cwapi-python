@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="chatwars-api",
-    version="0.0a0",
+    version="1!2021.11.24b0",
     packages=["cwapi"],
     install_requires=[
         "pika",
