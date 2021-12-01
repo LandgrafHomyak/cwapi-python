@@ -6,6 +6,7 @@ from .types import _GuildStock, Action, Condition, Gear, GearSet, Guild, GuildRo
 
 __all__ = ("CreateAuthCodeResponse", "GuildInfoResponse", "ApiException", "InvalidTokenError", "WantToBuyResponse", "RequestProfileResponse", "RequestBasicInfoResponse", "RequestStockResponse", "GetInfoResponse", "RequestGearInfoResponse", "ViewCraftbookResponse", "AuthAdditionalOperationResponse", "GrantAdditionalOperationResponse", "GrantTokenResponse", "BadFormatError", "NotInGuildError", "NoSuchUserError", "LevelIsLowError", "ForbiddenError", "ApiException")
 
+
 class response:
     __slots__ = ()
 
@@ -196,6 +197,13 @@ class InvalidTokenError(response_error):
 InvalidTokenError.token = _slot_wrapper(InvalidTokenError.token, str, "token")
 
 
+class InvalidCodeError(response_error):
+    __slots__ = ()
+
+    def __init__(self):
+        super().__init__("passed code is invalid")
+
+
 class ForbiddenError(response_error):
     __slots__ = "userId", "requiredOperation", "action"
 
@@ -249,6 +257,8 @@ def parse_response(b, /):
         raise NoSuchUserError(userId=o["payload"]["userId"])
     elif e == "InvalidToken":
         raise InvalidTokenError(token=o["payload"]["token"])
+    elif e == "InvalidCode":
+        raise InvalidCodeError()
     elif e == "Forbidden":
         raise ForbiddenError(action=o["action"], userId=o["payload"]["userId"], requiredOperation=Operation(o["payload"]["requiredOperation"]))
     elif e == "NotInGuild":

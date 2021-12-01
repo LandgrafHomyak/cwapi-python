@@ -31,7 +31,7 @@ setup(
         "Topic :: Software Development",
         "Typing :: Typed"
     ],
-    license="",
+    license="MIT",
     license_files=["LICENSE"],
 
 )

@@ -452,6 +452,13 @@ class InvalidTokenError(response_error):
 
 
 @final
+class InvalidCodeError(response_error):
+    def __new__(cls) -> InvalidCodeError: ...
+
+    def __init__(self) -> NoReturn: ...
+
+
+@final
 class ForbiddenError(response_error):
     @property
     def action(self) -> str: ...
