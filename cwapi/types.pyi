@@ -369,7 +369,8 @@ class GuildRolesSet:
 @final
 class GuildRole(Flag):
     NoRole: ClassVar[GuildRole] = None
-    Commander: ClassVar[GuildRole] = "Commander"
+    # Commander: ClassVar[GuildRole] = "Commander"
+    Creator: ClassVar[GuildRole] = "Creator"
     Squire: ClassVar[GuildRole] = "Squire"
     Bartender: ClassVar[GuildRole] = "Bartender"
     Treasurer: ClassVar[GuildRole] = "Treasurer"

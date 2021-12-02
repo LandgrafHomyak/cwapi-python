@@ -4,6 +4,7 @@ from cwapi._utils import _dataclass_creator, _optional, _slot_wrapper, encode_st
 
 __all__ = ()
 
+
 class Operation(str, Enum):
     # todo find how to get name in __new__
 
@@ -441,7 +442,8 @@ class GuildRolesSet:
 
 class GuildRole(Flag):
     NoRole = None
-    Commander = "Commander"
+    # Commander = "Commander"
+    Creator = "Creator"
     Squire = "Squire"
     Bartender = "Bartender"
     Treasurer = "Treasurer"
