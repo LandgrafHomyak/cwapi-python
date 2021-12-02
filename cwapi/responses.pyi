@@ -257,6 +257,9 @@ class RequestProfileResponse(RequestBasicInfoResponse):
 
     def __new__(cls, userId: int, class_: Class, atk: int, def_: int, castle: Castle, secondaryClass: Optional[SecondaryClass], hp: int, maxHp: int, exp: int, gold: int, guild: Optional[Guild], lvl: int, status: Status, action: Action, mana: int, pouches: int, stamina: int, userName: str) -> RequestProfileResponse: ...
 
+    @property
+    def full_name(self) -> str: ...
+
 
 @final
 class RequestGearInfoResponse(GearSet):
@@ -405,6 +408,9 @@ class GuildInfoResponse(Stock):
     def roles(self, value: GuildRolesSet) -> NoReturn: ...
 
     def __new__(cls, userId: int, tag: Optional[str], level: int, castle: Castle, emoji: Optional[str], glory: int, members: int, name: str, lobby: Optional[str], stock: _GuildStock, repair: bool, roles: GuildRolesSet) -> RequestStockResponse: ...
+
+    @property
+    def full_name(self) -> str: ...
 
 
 class ApiException(response_error):

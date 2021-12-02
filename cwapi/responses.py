@@ -83,7 +83,15 @@ class RequestProfileResponse(
     types=(Castle, _optional(SecondaryClass), int, int, int, int, _optional(Guild), int, Status, Action, int, int, int, str),
     super_names=("userId", "class_", "atk", "def_")
 ):
-    pass
+    @property
+    def full_name(self):
+        if self.guild is None:
+            return f"{self.castle !s}{self.userName}"
+        else:
+            if self.guild.tag is None:
+                return f"{self.castle if self.guild.emoji is None else self.guild.emoji !s}{self.userName}"
+            else:
+                return f"{self.castle if self.guild.emoji is None else self.guild.emoji !s}[{self.guild.tag}]{self.userName}"
 
 
 class RequestGearInfoResponse(GearSet):
@@ -127,7 +135,12 @@ class GuildInfoResponse(
     names=("userId", "tag", "level", "castle", "emoji", "glory", "members", "name", "lobby", "stock", "repair", "roles"),
     types=(int, _optional(str), int, Castle, _optional(str), int, int, str, _optional(str), _GuildStock, bool, GuildRolesSet),
 ):
-    pass
+    @property
+    def full_name(self):
+        if self.guild.tag is None:
+            return f"{self.castle if self.emoji is None else self.emoji !s}{self.name}"
+        else:
+            return f"{self.castle if self.emoji is None else self.emoji !s}[{self.tag}]{self.name}"
 
 
 class WantToBuyResponse(
