@@ -2,7 +2,7 @@
 
 Currently, based on [`pika`](https://pypi.org/project/pika/) and [`aio-pika`](https://pypi.org/project/aio-pika/).
 
-## Version `1!2021.11.24b0`
+## Version `1!2021.12.5b1`
 
 `{implementation version}!{date when it was work}{sub releases}`
 
@@ -10,13 +10,13 @@ Currently, based on [`pika`](https://pypi.org/project/pika/) and [`aio-pika`](ht
 
 Build on your machine:
 
-`pip install git+https://github.com/LandgrafHomyak/cwapi-python@v1!2021.11.24b0`
+`pip install git+https://github.com/LandgrafHomyak/cwapi-python@v1!2021.12.5b1`
 
 or
 
-`pip install https://github.com/LandgrafHomyak/cwapi-python/archive/refs/tags/v1!2021.11.24b0.tar.gz`
+`pip install https://github.com/LandgrafHomyak/cwapi-python/archive/refs/tags/v1!2021.12.5b1.tar.gz`
 
-or go to [release page](https://github.com/LandgrafHomyak/cwapi-python/releases/tag/v1!2021.11.24b0) and download wheel package directly.
+or go to [release page](https://github.com/LandgrafHomyak/cwapi-python/releases/tag/v1!2021.12.5b1) and download wheel package directly.
 
 ## Using
 
@@ -44,10 +44,15 @@ with ChatWarsApiClient(Server.CW3, "your instance name", PASSWORD) as c:
             RequestProfileRequest(token="1234567890abcdef")
         )
 
-        print(str(profile.castle) + profile.userName)
+        print(profile.castle.icon + profile.userName)
+        # or
+        print(profile.full_name)
+        
         print(
-            (str(profile.castle) if profile.guild.emoji is None else profile.guild.emoji) + str(profile.guild)
+            (profile.castle.icon if profile.guild.emoji is None else profile.guild.emoji) + str(profile.guild)
         )
+        # or
+        print(profile.guild.full_name(profile.castle))
     except ForbiddenError:
         req = c.ask(
             AuthAdditionalOperationRequest(token="1234567890abcdef", operation=Operation.GetUserProfile)

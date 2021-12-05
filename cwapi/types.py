@@ -109,6 +109,11 @@ class Guild(
     def __str__(self):
         return (f"[{self.tag}]" if self.tag is not None else "") + self.name
 
+    def full_name(self, castle):
+        if type(castle) is not Castle:
+            raise TypeError(f"castle must be {Castle.__qualname__}")
+        return (castle.icon if self.emoji is None else self.emoji) + str(self)
+
 
 class Status(str, Enum):
     def __str__(self):

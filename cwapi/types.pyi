@@ -102,6 +102,8 @@ class Guild:
 
     def __str__(self) -> str: ...
 
+    def full_name(self, castle: Castle) -> str: ...
+
 
 @final
 class Status(str, Enum):
