@@ -24,10 +24,12 @@ class Class(str, Enum):
     knight: ClassVar[str] = "\u2694\uFE0F"
     sentinel: ClassVar[str] = "\U0001F6E1"
     ranger: ClassVar[str] = "\U0001F3F9"
+    berserk: ClassVar[str] = "\U0001FA78"
 
     collector: ClassVar[str] = "\U0001F4E6"
     blacksmith: ClassVar[str] = "\u2692"
     alchemist: ClassVar[str] = "\u2697\uFE0F"
+    noble: ClassVar[str] = "\U0001F3A9"
 
 
 @final

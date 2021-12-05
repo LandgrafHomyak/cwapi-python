@@ -29,11 +29,12 @@ class Class(str, Enum):
     knight = "\u2694\uFE0F"
     sentinel = "\U0001F6E1"
     ranger = "\U0001F3F9"
+    berserk = "\U0001FA78"
 
     collector = "\U0001F4E6"
     blacksmith = "\u2692"
     alchemist = "\u2697\uFE0F"
-
+    noble = "\U0001F3A9"
 
 class Castle(str, Enum):
     def __str__(self):
