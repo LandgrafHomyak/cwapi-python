@@ -20,33 +20,62 @@ class Operation(str, Enum):
     TradeTerminal = "TradeTerminal"
 
 
-class Class(str, Enum):
-    def __str__(self):
-        return self.value
+class Class(Enum):
+    __slots__ = ("__icon", "__name", "_value_")
 
-    warrior = "\U0001F423"
+    def __new__(cls, icon, name):
+        self = object.__new__(cls)
+        self.__icon = icon
+        self.__name = name
+        self._value_ = icon
+        return self
 
-    knight = "\u2694\uFE0F"
-    sentinel = "\U0001F6E1"
-    ranger = "\U0001F3F9"
-    berserk = "\U0001FA78"
+    @property
+    def icon(self):
+        return self.__icon
 
-    collector = "\U0001F4E6"
-    blacksmith = "\u2692"
-    alchemist = "\u2697\uFE0F"
-    noble = "\U0001F3A9"
+    @property
+    def name(self):
+        return self.__name
 
-class Castle(str, Enum):
-    def __str__(self):
-        return self.value
+    Warrior = "\U0001F423", "warrior"
 
-    oplot = "\u2618\uFE0F"
-    rassvet = "\U0001F339"
-    skala = "\U0001F5A4"
-    tortuga = "\U0001F422"
-    night = "\U0001F987"
-    ferma = "\U0001F346"
-    amber = "\U0001F341"
+    Knight = "\u2694\uFE0F", "knight"
+    Sentinel = "\U0001F6E1", "sentinel"
+    Ranger = "\U0001F3F9", "ranger"
+    Berserker = "\U0001FA78", "berserker"
+
+    Collector = "\U0001F4E6", "collector"
+    Blacksmith = "\u2692", "blacksmith"
+    Alchemist = "\u2697\uFE0F", "alchemist"
+    Noble = "\U0001F3A9", "noble"
+
+
+class Castle(Enum):
+    __slots__ = ("__icon", "__name", "_value_")
+
+    def __new__(cls, icon, name):
+        self = object.__new__(cls)
+        self.__icon = icon
+        self.__name = name
+        self._value_ = icon
+        return self
+
+    @property
+    def icon(self):
+        return self.__icon
+
+    @property
+    def name(self):
+        return self.__name
+
+    Oplot = "\u2618\uFE0F", "oplot"
+    Rassvet = "\U0001F339", "rassvet"
+    Skala = "\U0001F5A4", "skala"
+    Tortuga = "\U0001F422", "tortuga"
+    Night = "\U0001F987", "night"
+    Ferma = "\U0001F346", "ferma"
+    Amber = "\U0001F341", "amber"
 
 
 _SUPERSCRIPT_DIGIT_MAP = {
@@ -138,18 +167,18 @@ class GearSlot(str, Enum):
     def __str__(self):
         return self.value
 
-    weapon = "weapon"
-    offhand = "offhand"
+    Weapon = "weapon"
+    Offhand = "offhand"
 
-    head = "head"
-    body = "body"
-    hands = "hands"
-    feet = "feet"
+    Head = "head"
+    Body = "body"
+    Hands = "hands"
+    Feet = "feet"
 
-    coat = "coat"
+    Coat = "coat"
 
-    amulet = "amulet"
-    ring = "ring"
+    Amulet = "amulet"
+    Ring = "ring"
 
 
 class GearSet:

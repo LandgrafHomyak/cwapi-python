@@ -16,33 +16,41 @@ class Operation(str, Enum):
 
 
 @final
-class Class(str, Enum):
-    def __str__(self) -> str: ...
+class Class(Enum):
+    @property
+    def icon(self) -> str: ...
 
-    warrior: ClassVar[str] = "\U0001F423"
+    @property
+    def name(self) -> str: ...
 
-    knight: ClassVar[str] = "\u2694\uFE0F"
-    sentinel: ClassVar[str] = "\U0001F6E1"
-    ranger: ClassVar[str] = "\U0001F3F9"
-    berserk: ClassVar[str] = "\U0001FA78"
+    Warrior: ClassVar[Class] = ...
 
-    collector: ClassVar[str] = "\U0001F4E6"
-    blacksmith: ClassVar[str] = "\u2692"
-    alchemist: ClassVar[str] = "\u2697\uFE0F"
-    noble: ClassVar[str] = "\U0001F3A9"
+    Knight: ClassVar[Class] = ...
+    Sentinel: ClassVar[Class] = ...
+    Ranger: ClassVar[Class] = ...
+    Berserker: ClassVar[Class] = ...
+
+    Collector: ClassVar[Class] = ...
+    Blacksmith: ClassVar[Class] = ...
+    Alchemist: ClassVar[Class] = ...
+    Noble: ClassVar[Class] = ...
 
 
 @final
-class Castle(str, Enum):
-    def __str__(self) -> str: ...
+class Castle(Enum):
+    @property
+    def icon(self) -> str: ...
 
-    oplot: ClassVar[str] = "\u2618\uFE0F"
-    rassvet: ClassVar[str] = "\U0001F339"
-    skala: ClassVar[str] = "\U0001F5A4"
-    tortuga: ClassVar[str] = "\U0001F422"
-    night: ClassVar[str] = "\U0001F987"
-    ferma: ClassVar[str] = "\U0001F346"
-    amber: ClassVar[str] = "\U0001F341"
+    @property
+    def name(self) -> str: ...
+
+    Oplot: ClassVar[Castle] = ...
+    Rassvet: ClassVar[Castle] = ...
+    Skala: ClassVar[Castle] = ...
+    Tortuga: ClassVar[Castle] = ...
+    Night: ClassVar[Castle] = ...
+    Ferma: ClassVar[Castle] = ...
+    Amber: ClassVar[Castle] = ...
 
 
 @final
@@ -187,18 +195,18 @@ class Gear:
 class GearSlot(str, Enum):
     def __str__(self) -> str: ...
 
-    weapon: ClassVar[str] = "weapon"
-    offhand: ClassVar[str] = "offhand"
+    Weapon: ClassVar[str] = "weapon"
+    Offhand: ClassVar[str] = "offhand"
 
-    head: ClassVar[str] = "head"
-    body: ClassVar[str] = "body"
-    hands: ClassVar[str] = "hands"
-    feet: ClassVar[str] = "feet"
+    Head: ClassVar[str] = "head"
+    Body: ClassVar[str] = "body"
+    Hands: ClassVar[str] = "hands"
+    Feet: ClassVar[str] = "feet"
 
-    coat: ClassVar[str] = "coat"
+    Coat: ClassVar[str] = "coat"
 
-    amulet: ClassVar[str] = "amulet"
-    ring: ClassVar[str] = "ring"
+    Amulet: ClassVar[str] = "amulet"
+    Ring: ClassVar[str] = "ring"
 
 
 @final
