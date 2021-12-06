@@ -85,13 +85,21 @@ class RequestProfileResponse(
 ):
     @property
     def full_name(self):
-        if self.guild is None:
-            return f"{self.castle !s}{self.userName}"
+        if self.guild is None or self.guild.tag is None:
+            return f"{self.userName}"
         else:
-            if self.guild.tag is None:
-                return f"{self.castle if self.guild.emoji is None else self.guild.emoji !s}{self.userName}"
-            else:
-                return f"{self.castle if self.guild.emoji is None else self.guild.emoji !s}[{self.guild.tag}]{self.userName}"
+            return f"[{self.guild.tag}]{self.userName}"
+
+    @property
+    def full_name_z(self):
+        if self.guild is None or self.guild.emoji is None:
+            return f"{self.castle.icon}{self.full_name}"
+        else:
+            return f"{self.guild.emoji}{self.full_name}"
+
+    @property
+    def full_name_k(self):
+        return f"{self.class_.icon}{self.full_name}"
 
 
 class RequestGearInfoResponse(GearSet):
@@ -137,10 +145,14 @@ class GuildInfoResponse(
 ):
     @property
     def full_name(self):
-        if self.guild.tag is None:
-            return f"{self.castle if self.emoji is None else self.emoji !s}{self.name}"
+        if self.tag is None:
+            return f"{self.name}"
         else:
-            return f"{self.castle if self.emoji is None else self.emoji !s}[{self.tag}]{self.name}"
+            return f"[{self.tag}]{self.name}"
+
+    @property
+    def full_name_z(self):
+        return f"{self.castle.icon if self.emoji is None else self.emoji}{self.full_name}"
 
 
 class WantToBuyResponse(

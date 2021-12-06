@@ -106,13 +106,14 @@ class Guild(
     names=("name", "tag", "emoji"),
     types=(str, _optional(str), _optional(str))
 ):
-    def __str__(self):
+    @property
+    def full_name(self):
         return (f"[{self.tag}]" if self.tag is not None else "") + self.name
 
-    def full_name(self, castle):
+    def full_name_z(self, castle):
         if type(castle) is not Castle:
-            raise TypeError(f"castle must be {Castle.__qualname__}")
-        return (castle.icon if self.emoji is None else self.emoji) + str(self)
+            raise TypeError(f"castle must be {Castle.__qualname__ !r}")
+        return (castle.icon if self.emoji is None else self.emoji) + self.full_name
 
 
 class Status(str, Enum):

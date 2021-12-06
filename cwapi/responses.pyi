@@ -260,6 +260,12 @@ class RequestProfileResponse(RequestBasicInfoResponse):
     @property
     def full_name(self) -> str: ...
 
+    @property
+    def full_name_z(self) -> str: ...
+
+    @property
+    def full_name_k(self) -> str: ...
+
 
 @final
 class RequestGearInfoResponse(GearSet):
@@ -411,6 +417,9 @@ class GuildInfoResponse(Stock):
 
     @property
     def full_name(self) -> str: ...
+
+    @property
+    def full_name_z(self) -> str: ...
 
 
 class ApiException(response_error):
