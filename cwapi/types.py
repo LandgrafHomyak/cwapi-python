@@ -131,6 +131,7 @@ class Action(str, Enum):
     Idle = "Idle"
     Conflict = "Conflict"
     Quest = "Quest"
+    Shop = "Shop"
 
 
 class Condition(str, Enum):
@@ -192,7 +193,7 @@ class GearSet:
 
     def __new__(cls, **kwargs):
         self = super().__new__(cls)
-        self.__gears_dict = {s: None for s in GearSlot.__members__.keys()}
+        self.__dct = {s: None for s in GearSlot.__members__.keys()}
         for s, v in kwargs.items():
             self[GearSlot(s)] = v
         return self

@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="chatwars-api",
-    version="1!2021.12.5b1",
+    version="1!2021.2.5b2",
     description="Client for Chat Wars API for Python3",
     author="Andrew Golovashevich",
     url="https://LandgrafHomyak.github.io/cwapi-python/",
