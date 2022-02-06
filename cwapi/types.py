@@ -140,7 +140,7 @@ class Condition(str, Enum):
 
     Normal = "Normal"
     Reinforced = "Reinforced"
-    Broken = "Broken"
+    Broken = "broken"
 
 
 class Quality(str, Enum):
@@ -193,7 +193,7 @@ class GearSet:
 
     def __new__(cls, **kwargs):
         self = super().__new__(cls)
-        self.__dct = {s: None for s in GearSlot.__members__.keys()}
+        self.__dct = {s: None for s in GearSlot.__members__.values()}
         for s, v in kwargs.items():
             self[GearSlot(s)] = v
         return self

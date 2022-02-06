@@ -330,7 +330,7 @@ def parse_response(b, /):
             return RequestGearInfoResponse(
                 userId=o["payload"]["userId"],
                 **{
-                    sn: Gear(name=sv["name"], atk=sv.get("atk", 0), def_=sv.get("def_", 0), condition=Condition(sv.get("condition", Condition.Normal)), quality=Quality(sv.get("quality", Quality.Common)), mana=sv.get("mana", 0))
+                    sn: Gear(name=sv["name"], atk=sv.get("atk", 0), def_=sv.get("def", 0), condition=Condition(sv.get("condition", Condition.Normal)), quality=Quality(sv.get("quality", Quality.Common)), mana=sv.get("mana", 0))
                     for sn, sv in o["payload"]["gearInfo"].items()
                 }
             )
